@@ -135,4 +135,10 @@ def bid(request):
 
 def watchlist(request):
     '''Handles the watchlist of the user'''
+    if request.method == 'POST':
+        pass
     return render(request, 'auctions/watchlist.html')
+
+
+def layout_view(request):
+    return render(request, 'auctions/waqti_layout.html')
