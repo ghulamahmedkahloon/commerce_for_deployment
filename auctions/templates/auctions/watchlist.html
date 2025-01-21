@@ -1,0 +1,27 @@
+{% extends 'auctions/layout.html' %}
+{% block title %} WatchList {% endblock %}
+{% block body %}
+    {% for listing in listings%}
+        <a href="{%url 'current_listing' listing.title%}" class="text-decoration-none">
+        <div class="card mb-3" >
+          <div class="row ">
+            <div class="col-md-4 align-self-center">
+              <img src="{{listing.image_url}}" class="img-fluid rounded-start" alt="Image Not Available">
+            </div>
+            <div class="col-md-8">
+              <div class="card-body">
+                <h5 class="card-title">{{listing.title}}</h5>
+                {% if listing.highest_bid %}
+                  <p class="fw-medium d-inline">Price: </p><span>${{listing.highest_bid}}</span>
+                {% else %}  
+                  <p class="fw-medium d-inline">Price: </p><span>${{listing.starting}}</span>
+                {% endif %}
+                <p class="card-text">{{listing.description|truncatewords:50}}</p>
+                <p class="card-text"><small class="text-body-secondary">Created {{listing.time_created}}</small></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        </a>
+    {% endfor %}
+{% endblock %}
