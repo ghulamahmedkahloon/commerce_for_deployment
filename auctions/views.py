@@ -141,4 +141,7 @@ def watchlist(request):
 
 
 def layout_view(request):
-    return render(request, 'auctions/waqti_layout.html')
+    listings = Listing.objects.annotate(highest_bid=models.Max('bids__bid'))
+    return render(request, "auctions/waqti_layout.html",{
+        'listings':listings
+    })

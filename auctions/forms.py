@@ -3,29 +3,37 @@ from django import forms
 from .models import Listing, bids
 from django.core.exceptions import ValidationError
 from django.db import models
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout , Row, Column, Field
+
 
 #Making a Form for listing.
 class ListingForm(forms.ModelForm):
     class Meta:
         model = Listing
         fields = ['title','description','starting','image_url','category']
-    # Adding bootstrap
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
-        self.helper.layout = Layout(
-            Row(
-                Column('title', css_class='col-md-6'),
-                Column('starting', css_class='col-md-6'),
-                css_class='row'
-            ),
-            Field('description', css_class='form-control'),
-            Field('image_url', css_class='form-control'),
-            Field('category', css_class='form-select'),
-        )
+    # Adding Tailwind
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'rounded-md my-2 w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500',
+                'placeholder': 'Enter listing title',
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'rounded-md my-2 w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500',
+                'rows': 4,
+                'placeholder': 'Enter description',
+            }),
+            'starting': forms.NumberInput(attrs={
+                'class': 'rounded-md my-2 w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500',
+                'placeholder': 'Starting price',
+            }),
+            'image_url': forms.TextInput(attrs={
+                'class': 'rounded-md my-2 w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500',
+                'placeholder': 'Enter image URL',
+            }),
+            'category': forms.Select(attrs={
+                'class': 'rounded-md my-2 w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500',
+            }),
+        }
+    
 
 class BiddingForm(forms.ModelForm):
     # A form receives the listing_id but I will inshallah not submit it to the user.

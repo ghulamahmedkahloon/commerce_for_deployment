@@ -1,18 +1,17 @@
 {% extends 'auctions/layout.html' %}
 {%block title%} {{title}} {% endblock %}
 {%block body%}
-    <div class="container-fluid">
-        <h2>Listing: {{listing.title}}</h2>
+    <div class="max-w-[1320px]">
+        <h2 class="text-xl font-medium my-2 ml-2">Listing: {{listing.title}}</h2>
         <!-- <div class = 'container'> -->
-            <div class="row">
-                <div class="col-12 align-self-center">
-                    <img src="{{listing.image_url}}" alt="Sorry Image not available" class="img-fluid" style="max-height: 400px;">
+            <div class="">
+                <div class="">
+                    <img src="{{listing.image_url}}" alt="Sorry Image not available" class="max-h-[400px]">
                 </div>
-                <p class="col-12">{{listing.description}}</p>
                 {% if highest_bid %}
-                    <p class="fs-2 text fw-semibold">$ {{highest_bid}}</p>
+                <p class="">$ {{highest_bid}}</p>
                 {% else %}
-                    <p class="fs-2 text fw-semibold">$ {{listing.starting}}</p>
+                <p class="">$ {{listing.starting}}</p>
                 {% endif %}
                 <div>
                     <form action="{%url 'bid' %}" method="post">
@@ -25,6 +24,7 @@
                     <p>Listed by: <a href="">{{listing.listed_by}}</a></p>
                     <p>Category: {{listing.category}}</p>
                     <p>Time Created: {{listing.time_created}}</p>
+                    <p class="">{{listing.description}}</p>
                 </ul>
             </div>
         <!-- </div> -->

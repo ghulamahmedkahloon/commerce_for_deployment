@@ -1,11 +1,32 @@
 {%extends 'auctions/layout.html'%}
+
+
+
 {% block title %}Create Listing{% endblock %}
 {%block body%}
-<h2>Create Listing</h2>
-<form action="{% url 'listing'%}" method="post">
+<h2 class="text-xl font-medium my-2 ml-2">Create Listing</h2>
+<form action="{% url 'listing'%}" method="post" class="ml-2">
     {% csrf_token %}
-    {% load crispy_forms_tags %}
-    {{ form|crispy }}
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <div class="my-4">
+        <label for="id_title" class="block font-bold text-gray-700 mb-1">Title</label>
+        {{ form.title }}
+    </div>
+    <div class="my-4">
+        <label for="id_description" class="block font-bold text-gray-700 mb-1">Description</label>
+        {{ form.description }}
+    </div>
+    <div class="my-4">
+        <label for="id_starting" class="block font-bold text-gray-700 mb-1">Starting Price</label>
+        {{ form.starting }}
+    </div>
+    <div class="my-4">
+        <label for="id_image_url" class="block font-bold text-gray-700 mb-1">Image URL</label>
+        {{ form.image_url }}
+    </div>
+    <div class="my-4">
+        <label for="id_category" class="block font-bold text-gray-700 mb-1">Category</label>
+        {{ form.category }}
+    </div>
+    <button type="submit" class= "ml-[0.4rem] bg-gray-500 text-white py-2 cursor-pointer hover:text-black px-3 rounded-md focus:ring-indigo-500 focus:border-indigo-500">Submit</button>
 </form>
 {%endblock%}
