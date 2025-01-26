@@ -23,6 +23,8 @@ class Listing(models.Model):
     category = models.CharField(max_length=50,choices=CATEGORY_CHOICES, blank=True)
     listed_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name= 'listings')
     time_created = models.DateTimeField(auto_now_add=True) #Records the time when an entry is created.
+    # Records whether the listing is empty or not.
+    Active = models.BooleanField(default=True)
     # It wont change when it is updated.
     def __str__(self):
         return f'{self.title} starting from {self.starting} by {self.listed_by}'
@@ -42,7 +44,16 @@ class bids(models.Model):
 
 
 class comments(models.Model):
-    pass
+    listing = models.ForeignKey(Listing,on_delete=models.CASCADE, related_name='comments_on_listing',null = True)
+    commenter = models.ForeignKey(User, on_delete=models.CASCADE, related_name='users_comments', null = True)
+    comment = models.TextField(max_length=1000, null=True)
+    posted = models.DateField(auto_now_add=True, null=True)
+
+    class Meta:
+        verbose_name = 'comment'
+
+    def __str__(self):
+        return f'{self.id}: {self.commenter} commented on {self.listing}'
 
 class Watchlist(models.Model):
     watch_lister = models.ForeignKey(User, on_delete= models.CASCADE)

@@ -1,6 +1,6 @@
 # Bismillahirahmanirahim
 from django import forms
-from .models import Listing, bids
+from .models import Listing, bids, comments
 from django.core.exceptions import ValidationError
 from django.db import models
 
@@ -72,3 +72,29 @@ class BiddingForm(forms.ModelForm):
     class Meta:
         model = bids
         fields = ['bid']
+        widgets = {
+            'bid': forms.NumberInput(attrs={
+                'class': 'rounded-md my-2 w-full border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500',
+                'placeholder': 'Bid',
+            })}
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['bid'].label = ''  # Remove the label
+    
+
+class CommentForm(forms.ModelForm):
+
+    # A form receives the listing_id but I will inshallah not submit it to the user.
+    listing_id = forms.IntegerField(widget = forms.HiddenInput()) #Listing id is an integer so use an integer field.
+
+    class Meta:
+        model = comments
+        fields = ['comment']
+        widgets = {
+            'comment': forms.Textarea(attrs={
+                'class': 'w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-blue-300',
+                'rows':7,
+                'placeholder': 'Write your comment here...'
+            })
+        }

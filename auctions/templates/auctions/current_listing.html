@@ -9,23 +9,94 @@
                     <img src="{{listing.image_url}}" alt="Sorry Image not available" class="max-h-[400px]">
                 </div>
                 {% if highest_bid %}
-                <p class="">$ {{highest_bid}}</p>
+                <p class="font-medium text-3xl">$ {{highest_bid}}</p>
                 {% else %}
-                <p class="">$ {{listing.starting}}</p>
+                <p class="font-medium text-3xl">$ {{listing.starting}}</p>
                 {% endif %}
                 <div>
+                <div class="flex">
+                    {% if biddings %}
+                        <p class="text-sm">{{biddings}} bid(s) so far.</p>
+                    {% endif %}
+                    {% if highest_bidder %}
+                        {% if highest_bidder == request.user %}
+                            <p class="text-sm"> Your bid is the current bid.</p>
+                        {% else %}
+                            <p class="text-sm"> {{highest_bidder}}'s bid is the current bid.</p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                {% if request.user != listing.listed_by %}
                     <form action="{%url 'bid' %}" method="post">
                         {% csrf_token %}
                         {{bidding_form}}
+                    
+                        <button type="submit" class= " bg-gray-500 text-white py-2 cursor-pointer hover:text-black px-3 rounded-md focus:ring-indigo-500 focus:border-indigo-500 mr-8">Place Bid</button>
                     </form>
+                {% endif %}
+                    {% if request.user == listing.listed_by %}
+                        <a href="{%url 'delete'%}"><button class= " bg-stone-700 text-white py-2 cursor-pointer hover:text-black px-3 rounded-md focus:ring-indigo-500 focus:border-indigo-500 m-3">Delete item</button></a>
+                    {% endif %}
+                   
                 </div>
-                <p class="fs-2 fw-semibold">Details</p>
+                <p class="font-medium text-2xl">Details</p>
                 <ul>
-                    <p>Listed by: <a href="">{{listing.listed_by}}</a></p>
-                    <p>Category: {{listing.category}}</p>
-                    <p>Time Created: {{listing.time_created}}</p>
+                    <p><span class="font-medium">Listed by: </span><a href="">{{listing.listed_by}}</a></p>
+                    {% if listing.category %}
+                    <p><span class="font-medium">Category: </span>{{listing.category}}</p>
+                    {% endif %}
+                    <p><span class="font-medium">Time Created: </span>{{listing.time_created}}</p>
+                    <p class="mt-1 font-medium">Description:</p>
                     <p class="">{{listing.description}}</p>
                 </ul>
+
+                
+
+                <div class="max-w-full mx-auto my-6">
+                    <!-- Comment Form -->
+                    <div class="bg-slate-50 p-4 rounded-lg shadow-md mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Leave a Comment</h2>
+                        <form action="{% url 'comment' %}" method="POST">
+                            {% csrf_token %}
+                            {{comment_form}}
+                            <button
+                                type="submit"
+                                class="ml-[0.4rem] bg-gray-500 text-white py-2 cursor-pointer hover:text-black px-3 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                            >
+                                Comment
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                    <!-- Comment Section -->
+                    {% for comment in comments %}
+                    <!-- Trying out the comment style -->
+                    <div class="max-w-full mx-auto my-4 p-4 bg-white rounded-lg shadow-md border border-gray-200 mb-2">
+                        <!-- User Info -->
+                        <div class="flex items-center mb-4">
+                            <!-- Profile Picture -->
+                            <img
+                                src="https://via.placeholder.com/50"
+                                alt="User Avatar"
+                                class="w-10 h-10 rounded-full object-cover mr-3"
+                            />
+                            <div>
+                                <!-- User Name -->
+                                <h4 class="text-lg font-semibold text-gray-800">{{comment.commenter}}</h4>
+                                <!-- Comment Timestamp -->
+                                <p class="text-sm text-gray-500">Posted on {{comment.posted}}</p>
+                            </div>
+                        </div>
+                    
+                        <!-- Comment Content -->
+                        <p class="text-gray-700 leading-relaxed">
+                            {{comment.comment}}
+                        </p>
+                
+                    </div>
+                    {% endfor %}
+                
             </div>
         <!-- </div> -->
     </div>

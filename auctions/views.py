@@ -5,9 +5,12 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.contrib.auth.decorators import login_required
 
-from .models import User, Listing, bids
-from .forms import ListingForm, BiddingForm
+
+from .models import User, Listing
+from .forms import ListingForm, BiddingForm, CommentForm
 
 def index(request):
     listings = Listing.objects.annotate(highest_bid=models.Max('bids__bid'))
@@ -69,6 +72,7 @@ def register(request):
 
 
 # For Creating Listing
+@login_required
 def listing_view(request):
     # If the user submits a form
     if request.method == 'POST':
@@ -93,55 +97,85 @@ def current_listing(request, name):
         
         # Get the highest bid if placed any
         highest_bid = current.bids.aggregate(max_bid = models.Max('bid'))['max_bid']
-        
+        biddings = current.bids.count() # Total number of bidings on the listing
+        if highest_bid is not None:
+            highest_bidder = current.bids.get(bid = highest_bid).bidder # The highest bidder
+        else:
+            highest_bidder = None
+        comments = current.comments_on_listing.all() # All the comments on the listing
+        comment_form = CommentForm(initial= {'listing_id': current.id})
 
         return render(request, "auctions/current_listing.html",{
             'title': name,
             'listing': current,
             'bidding_form': bidding_form,
-            'highest_bid': highest_bid
+            'highest_bid': highest_bid,
+            'biddings': biddings,
+            'highest_bidder': highest_bidder,
+            'comments': comments,
+            'comment_form': comment_form
         })
     except:
         return HttpResponse(f'Sorry no listing with the title {name}')
-    
+
+@login_required
 def bid(request):
     """A func for handling the bidding"""
     if request.method == 'POST':
         #Makes a form and bound the data with it. Without it you wont be able to validate it.
         form = BiddingForm(request.POST)
+
         if form.is_valid():
             #The next step save the form but does not upload it to the database.
             bid = form.save(commit=False)
             bid.bidder = request.user
             bid.listing = get_object_or_404(Listing, id= form.cleaned_data['listing_id'])
             bid.save()
-            return render(request, "auctions/current_listing.html",{
-            'title': bid.listing.title,
-            'listing': bid.listing,
-            'highest_bid': bid.listing.bids.aggregate(max_bid = models.Max('bid'))['max_bid'],
-            'bidding_form': BiddingForm(initial = {'listing': bid.listing})
-            })
+            return HttpResponseRedirect(reverse('current_listing',args=[bid.listing.title]))
         else:
             listing_id = form.cleaned_data.get('listing_id')  # Get listing_id from the form
             listing = get_object_or_404(Listing, id=listing_id)
+            highest_bid = listing.bids.aggregate(max_bid = models.Max('bid'))['max_bid']
             return render(request, "auctions/current_listing.html", {
+                'title':listing.title,
                 'listing': listing,
                 'bidding_form': form,
-                'highest_bid': listing.bids.aggregate(max_bid = models.Max('bid'))['max_bid']
+                'highest_bid': highest_bid,
+                'biddings': listing.bids.count(),
+                'highest_bidder': listing.bids.get(bid = highest_bid).bidder,
+                'comments': listing.comments_on_listing.all(),
+                'comment_form': CommentForm(initial= {'listing': listing,'listing_id': listing.id})
             })
+
+
     else:
         return HttpResponse("Invalid request method.")
 
 
+@login_required
+def comment(request):
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            listing_id = form.cleaned_data['listing_id']
+            listing = get_object_or_404(Listing, id=listing_id)
+            liisting = form.save(commit=False)
+            title = listing.title
+            liisting.commenter = request.user
+            liisting.listing = listing
+            form.save()
+
+            return HttpResponseRedirect(reverse('current_listing',args = [title]))
+
+
+@login_required
+def delete(request):
+    pass
+
+
+@login_required
 def watchlist(request):
     '''Handles the watchlist of the user'''
     if request.method == 'POST':
         pass
     return render(request, 'auctions/watchlist.html')
-
-
-def layout_view(request):
-    listings = Listing.objects.annotate(highest_bid=models.Max('bids__bid'))
-    return render(request, "auctions/waqti_layout.html",{
-        'listings':listings
-    })
