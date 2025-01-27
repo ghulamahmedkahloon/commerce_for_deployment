@@ -23,9 +23,10 @@ class Listing(models.Model):
     category = models.CharField(max_length=50,choices=CATEGORY_CHOICES, blank=True)
     listed_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name= 'listings')
     time_created = models.DateTimeField(auto_now_add=True) #Records the time when an entry is created.
-    # Records whether the listing is empty or not.
-    Active = models.BooleanField(default=True)
     # It wont change when it is updated.
+
+    # Records whether the listing is Active or not.
+    Active = models.BooleanField(default=True)
     def __str__(self):
         return f'{self.title} starting from {self.starting} by {self.listed_by}'
     
@@ -56,5 +57,5 @@ class comments(models.Model):
         return f'{self.id}: {self.commenter} commented on {self.listing}'
 
 class Watchlist(models.Model):
-    watch_lister = models.ForeignKey(User, on_delete= models.CASCADE)
+    watch_lister = models.OneToOneField(User, on_delete= models.CASCADE)
     watch_list_items = models.ManyToManyField(Listing, related_name='watchlist')

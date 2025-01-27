@@ -9,11 +9,11 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 
 
-from .models import User, Listing
+from .models import User, Listing, Watchlist
 from .forms import ListingForm, BiddingForm, CommentForm
 
 def index(request):
-    listings = Listing.objects.annotate(highest_bid=models.Max('bids__bid'))
+    listings = Listing.objects.annotate(highest_bid=models.Max('bids__bid')).filter(Active=True)
     return render(request, "auctions/index.html",{
         'listings':listings
     })
@@ -38,7 +38,7 @@ def login_view(request):
     else:
         return render(request, "auctions/login.html")
 
-
+@login_required
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
@@ -169,13 +169,30 @@ def comment(request):
 
 
 @login_required
-def delete(request):
-    pass
+def close_auction(request, listing_id):
+    listing = Listing.objects.get(id=listing_id)
+    listing.Active = False
+    listing.save()
+    return HttpResponseRedirect(reverse('current_listing',args=[listing.title]))
 
 
 @login_required
 def watchlist(request):
-    '''Handles the watchlist of the user'''
-    if request.method == 'POST':
-        pass
-    return render(request, 'auctions/watchlist.html')
+    '''Handles the watchlistpage of the user'''
+    watchlist, created = Watchlist.objects.get_or_create(watch_lister = request.user)
+    return render(request, 'auctions/watchlist.html',{
+        'watchlist':watchlist
+    })
+
+@login_required
+def add_to_watchlist(request,listing_id):
+    watchlist, created = Watchlist.objects.get_or_create(watch_lister = request.user)
+    listing = get_object_or_404(Listing, id = listing_id)
+    if watchlist.watch_list_items.filter(id = listing_id).exists():
+        watchlist.watch_list_items.remove(listing)
+        messages.info(request,'Listing Removed from the Watchlist.')
+        return HttpResponseRedirect(reverse('current_listing',args=[listing.title]))
+    else:
+        watchlist.watch_list_items.add(listing)
+        messages.success(request,'Listing added to the watchlist.')
+        return HttpResponseRedirect(reverse('current_listing',args=[listing.title]))
