@@ -136,13 +136,17 @@ def bid(request):
             listing_id = form.cleaned_data.get('listing_id')  # Get listing_id from the form
             listing = get_object_or_404(Listing, id=listing_id)
             highest_bid = listing.bids.aggregate(max_bid = models.Max('bid'))['max_bid']
+            try:
+                highest_bidder = listing.bids.get(bid = highest_bid).bidder
+            except:
+                highest_bidder = None
             return render(request, "auctions/current_listing.html", {
                 'title':listing.title,
                 'listing': listing,
                 'bidding_form': form,
                 'highest_bid': highest_bid,
                 'biddings': listing.bids.count(),
-                'highest_bidder': listing.bids.get(bid = highest_bid).bidder,
+                'highest_bidder': highest_bidder,
                 'comments': listing.comments_on_listing.all(),
                 'comment_form': CommentForm(initial= {'listing': listing,'listing_id': listing.id})
             })
