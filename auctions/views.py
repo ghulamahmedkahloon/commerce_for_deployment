@@ -91,7 +91,7 @@ def listing_view(request):
 
 def current_listing(request, name):
     try:
-        current = Listing.objects.get(title = name.title())
+        current = Listing.objects.get(title = name)
         #Makes bidding form and gives a default value for listing_id
         bidding_form = BiddingForm(initial = {'listing_id': current.id})
         
@@ -180,8 +180,10 @@ def close_auction(request, listing_id):
 def watchlist(request):
     '''Handles the watchlistpage of the user'''
     watchlist, created = Watchlist.objects.get_or_create(watch_lister = request.user)
+    listings = watchlist.watch_list_items.all().annotate(highest_bid=models.Max('bids__bid'))
     return render(request, 'auctions/watchlist.html',{
-        'watchlist':watchlist
+        'watchlist':watchlist,
+        'listings':listings
     })
 
 @login_required
@@ -196,3 +198,20 @@ def add_to_watchlist(request,listing_id):
         watchlist.watch_list_items.add(listing)
         messages.success(request,'Listing added to the watchlist.')
         return HttpResponseRedirect(reverse('current_listing',args=[listing.title]))
+
+
+def categories(request):
+    catagory_list = []
+    for value, label in Listing.CATEGORY_CHOICES:
+        catagory_list.append(label)
+    return render(request,'auctions/categories.html',{'catagory_list':catagory_list})
+
+def category(request, category):
+    if category != 'other':
+        listings = Listing.objects.filter(category=category).annotate(highest_bid=models.Max('bids__bid')).filter(Active=True)
+    else:
+        listings = Listing.objects.filter(category= '').annotate(highest_bid=models.Max('bids__bid')).filter(Active=True)
+        category = 'other catagories'
+    return render(request,'auctions/category.html',{
+        'listings':listings,
+        'category':category})

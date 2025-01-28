@@ -1,8 +1,9 @@
-{% extends "auctions/layout.html" %}
+{% extends 'auctions/layout.html' %}
 {% load static %}
 
+{% block title %} {{category}}{% endblock %}
 {% block body %}
-<h1 class="font-semibold text-[2rem] m-3">Active Listings</h1>
+    <h2 class="font-serif text-2xl text-center m-4 text-stone-800">Listings related to {{category}}</h2>
     {% for listing in listings%}
       <a href="{%url 'current_listing' listing.title%}" class="text-decoration-none">
      
@@ -10,10 +11,14 @@
             <div class="border-[1px] border-solid shadow-sm flex rounded-md mb-4 hover:scale-105">
                 <div class="basis-[33%]">
                     {% if listing.image_url %}
-                        <img src="{{listing.image_url}}" alt="" class="rounded-l-md max-w-96">
+                        <div class="">
+                            <img src="{{listing.image_url}}" alt="Sorry Image not available" class="max-h-[400px]">
+                        </div>
                     {% else %}
-                        <img src="{% static 'auctions/no_image.jpg' %}" alt="" class="rounded-l-md max-w-96">
-                    {% endif %}
+                        <div class="">
+                            <img src="{% static 'auctions/no_image.jpg' %}" alt="Sorry Image not available" class="max-h-[400px]">
+                        </div>
+                    {% endif %}           
                 </div>
                 <div class="basis-[66%] p-3">
                     <h1 class="text-[1.25rem] font-medium">{{listing.title}}</h1>

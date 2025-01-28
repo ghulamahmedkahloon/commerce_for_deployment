@@ -59,3 +59,6 @@ class comments(models.Model):
 class Watchlist(models.Model):
     watch_lister = models.OneToOneField(User, on_delete= models.CASCADE)
     watch_list_items = models.ManyToManyField(Listing, related_name='watchlist')
+
+    def __str__(self):
+        return f"{self.watch_lister}'s watchlist"

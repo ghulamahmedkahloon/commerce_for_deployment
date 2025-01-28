@@ -1,27 +1,42 @@
 {% extends 'auctions/layout.html' %}
+{% load static %}
+
 {% block title %} WatchList {% endblock %}
 {% block body %}
-    {% for listing in listings%}
-        <a href="{%url 'current_listing' listing.title%}" class="text-decoration-none">
-        <div class="card mb-3" >
-          <div class="row ">
-            <div class="col-md-4 align-self-center">
-              <img src="{{listing.image_url}}" class="img-fluid rounded-start" alt="Image Not Available">
+  {% if not watchlist.watch_list_items.exists %}
+    <div class="flex justify-center items-center h-[75vh]">
+      <p class="font-serif text-2xl text-indigo-500">Listings that you add to your watchlist will be shown here.</p>
+    </div>
+  {% endif %}
+  {% for listing in listings%}
+  <a href="{%url 'current_listing' listing.title%}" class="text-decoration-none">
+ 
+    <div class="grid-cols-1 mx-1">
+        <div class="border-[1px] border-solid shadow-sm flex rounded-md mb-4 hover:scale-105">
+            <div class="basis-[33%]">
+              {% if listing.image_url %}
+                <div class="">
+                  <img src="{{listing.image_url}}" alt="Sorry Image not available" class="max-h-[400px]">
+                </div>
+              {% else %}
+                <div class="">
+                  <img src="{% static 'auctions/no_image.jpg' %}" alt="Sorry Image not available" class="max-h-[400px]">
+                </div>
+              {% endif %} 
             </div>
-            <div class="col-md-8">
-              <div class="card-body">
-                <h5 class="card-title">{{listing.title}}</h5>
+            <div class="basis-[66%] p-3">
+                <h1 class="text-[1.25rem] font-medium">{{listing.title}}</h1>
                 {% if listing.highest_bid %}
-                  <p class="fw-medium d-inline">Price: </p><span>${{listing.highest_bid}}</span>
-                {% else %}  
-                  <p class="fw-medium d-inline">Price: </p><span>${{listing.starting}}</span>
+                <p class="font-medium">Price: <span class="font-normal">${{listing.highest_bid}}</span></p>
+                {% else %}
+                <p class="font-medium">Price: <span class="font-normal">${{listing.starting}}</span></p>
                 {% endif %}
-                <p class="card-text">{{listing.description|truncatewords:50}}</p>
-                <p class="card-text"><small class="text-body-secondary">Created {{listing.time_created}}</small></p>
-              </div>
+                <p class="mb-4">{{listing.description| truncatewords:50}}</p>
+                <p class="opacity-70 text-sm">Created at: {{listing.time_created}}</p>
             </div>
-          </div>
         </div>
-        </a>
-    {% endfor %}
+   
+    </div>
+  </a>
+  {% endfor %}
 {% endblock %}

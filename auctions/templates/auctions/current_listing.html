@@ -1,13 +1,21 @@
 {% extends 'auctions/layout.html' %}
+{% load static %}
+
 {%block title%} {{title}} {% endblock %}
 {%block body%}
     <div class="max-w-[1320px]">
         <h2 class="text-xl font-medium my-2 ml-2">Listing: {{listing.title}}</h2>
         <!-- <div class = 'container'> -->
             <div class="">
-                <div class="">
-                    <img src="{{listing.image_url}}" alt="Sorry Image not available" class="max-h-[400px]">
-                </div>
+                {% if listing.image_url %}
+                    <div class="">
+                        <img src="{{listing.image_url}}" alt="Sorry Image not available" class="max-h-[400px]">
+                    </div>
+                {% else %}
+                    <div class="">
+                        <img src="{% static 'auctions/no_image.jpg' %}" alt="Sorry Image not available" class="max-h-[400px]">
+                    </div>
+                {% endif %}  
                 {% if listing.Active == True %}
                     {% if highest_bid %}
                     <p class="font-medium text-3xl">$ {{highest_bid}}</p>
@@ -46,10 +54,20 @@
                                 <button type="button" class="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Watchlist</button></a>
                         {% endif %}
                 {% else %}
-                    {% if highest_bidder == request.user %}
-                        <h2>Congratulations. You won the auction.</h2>
+                    {% if highest_bidder %}
+                        {% if highest_bidder == request.user %}
+                            <h2>Congratulations. You won the auction.</h2>
+                            <a href="{% url 'add_to_watchlist' listing.id %}">
+                                <button type="button" class="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Watchlist</button></a>
+                        {% else %}
+                            <h2>Their were {{biddings}} bid(s) in total and {{highest_bidder}} won the auction.</h2>
+                            <a href="{% url 'add_to_watchlist' listing.id %}">
+                                <button type="button" class="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Watchlist</button></a>
+                        {% endif %}
                     {% else %}
-                        <h2>Their were {{biddings}} bid(s) in total and {{highest_bidder}} won the auction.</h2>
+                        <h2>Their was 0 zero biddings on the listing. So no one is the winner as the owner has closed the auction.</h2>
+                        <a href="{% url 'add_to_watchlist' listing.id %}">
+                            <button type="button" class="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Watchlist</button></a>
                     {% endif %}
                 {% endif %}
                     <div>
@@ -60,7 +78,7 @@
                 <ul>
                     <p><span class="font-medium">Listed by: </span><a href="">{{listing.listed_by}}</a></p>
                     {% if listing.category %}
-                    <p><span class="font-medium">Category: </span>{{listing.category}}</p>
+                        <p><span class="font-medium">Category: </span>{{listing.category}}</p>
                     {% endif %}
                     <p><span class="font-medium">Time Created: </span>{{listing.time_created}}</p>
                     <p class="mt-1 font-medium">Description:</p>
@@ -94,7 +112,7 @@
                         <div class="flex items-center mb-4">
                             <!-- Profile Picture -->
                             <img
-                                src="https://via.placeholder.com/50"
+                                src="{% static 'auctions/user.png' %}"
                                 alt="User Avatar"
                                 class="w-10 h-10 rounded-full object-cover mr-3"
                             />

@@ -27,7 +27,7 @@
                     <a href="{% url 'index' %}" class="text-[#257ad9] p-4 hover:underline">Active Listings</a>
                 </li>
                 <li>
-                    <a href="" class="text-[#257ad9] p-4 hover:underline">Categories</a>
+                    <a href="{% url 'categories' %}" class="text-[#257ad9] p-4 hover:underline">Categories</a>
                 </li>
                 {% if user.is_authenticated %}
                 <li>
